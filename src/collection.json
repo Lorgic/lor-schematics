@@ -1,0 +1,19 @@
+{
+
+  "$schema": "./node_modules/@angular-devkit/schematics/collection-schema.json",
+
+ 
+  "schematics": {
+    "my-custom-service": {
+      "description": "A service with boilerplate following company best practices",
+      "factory": "./my-custom-service",
+      "schema": "./my-custom-service/schema.json"
+    },
+    "my-first-schema": {
+      "aliases": ["mfs"],
+      "description": "A blank schematic.",
+      "factory": "./my-first-schema",
+      "schema": "./my-first-schema/schema.json"
+    }
+  }
+}
