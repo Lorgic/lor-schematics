@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "id": "NNSchematicsState",
+    "title": "NgRx NN State Options Schema",
+    "type": "object",
+    "properties": {
+      "name": {
+        "description": "The name of the feature. For subfolders use 'parentFolder/nameOfFeature'",
+        "type": "string"
+      },
+      "effects": {
+        "type": "string",
+        "description": "Array of effects."
+      },
+      "reducers": {
+        "type": "string",
+        "description": "Array of reducers."
+      }
+    },
+    "required": ["name"]
+  }
+  
