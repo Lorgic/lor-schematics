@@ -1,7 +1,7 @@
 {
   "name": "@nn/schematics",
   "version": "0.0.1",
-  "description": "A schematics",
+  "description": "Schematics for NN Angular Apps",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && jasmine **/*_spec.js"
@@ -21,12 +21,13 @@
     "@ngrx/store": "^6.0.1",
     "@ngrx/store-devtools": "^6.0.1",
     "@schematics/schematics": "0.6.5",
-    "@types/jasmine": "^2.6.0",
-    "@types/node": "^8.0.31",
-    "jasmine": "^2.8.0",
+    "@ngrx/schematics": "^6.0.1",
     "typescript": "^2.5.2"
   },
   "devDependencies": {
-    "@ngrx/schematics": "^6.0.1"
+    "@types/jasmine": "^2.6.0",
+    "@types/node": "^8.0.31",
+    "jasmine": "^2.8.0",
+    "tslint-sonarts": "^1.7.0"
   }
 }

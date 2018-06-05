@@ -1,0 +1,24 @@
+{
+    "extends": [
+      "tslint:recommended",
+      "tsling-sonarts"
+    ],
+    "rules": {
+      "object-literal-sort-keys": false,
+      "no-duplicate-variable": true,
+      "no-unused-variable": [true],
+      "max-line-length": [true, 200],
+      "quotemark": [true, "single", "avoid-escape"],
+      "trailing-comma": [true, {"multiline": "ignore", "singleline": "ignore"}],
+      "cyclomatic-complexity": [true, 20],
+      "object-literal-shorthand": true,
+      "ordered-imports": [false],
+      "no-console": [false],
+      "max-classes-per-file": [true, 15],
+      "interface-name": ["never-prefix"]
+    },
+    "rulesDirectory": [
+      "node_modules/tslint-eslint-rules/dist/rules"
+    ]
+  }
+  
