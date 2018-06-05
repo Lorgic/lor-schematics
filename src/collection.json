@@ -4,11 +4,18 @@
 
  
   "schematics": {
-    "nn-state": {
+    "nn-ngrx-state": {
       "aliases": ["s"],
       "description": "Setup state with NN App project structure. (Uses ngrx/schematics)",
       "factory": "./nn-state",
       "schema": "./nn-state/schema.json"
+
+    },
+    "nn-ngrx-action": {
+      "aliases": ["a"],
+      "description": "Setup action with NN App project structure. (Uses ngrx/schematics)",
+      "factory": "./nn-action",
+      "schema": "./nn-action/schema.json"
 
     }
   }

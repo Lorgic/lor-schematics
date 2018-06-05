@@ -18,16 +18,19 @@
     "@angular/core": "^6.0.3",
     "@ngrx/effects": "^6.0.1",
     "@ngrx/entity": "^6.0.1",
+    "@ngrx/schematics": "^6.0.1",
     "@ngrx/store": "^6.0.1",
     "@ngrx/store-devtools": "^6.0.1",
     "@schematics/schematics": "0.6.5",
-    "@ngrx/schematics": "^6.0.1",
-    "typescript": "^2.5.2"
+    "rxjs": "^6.0.0",
+    "typescript": "^2.5.2",
+    "zone.js": "~0.8.26"
   },
   "devDependencies": {
     "@types/jasmine": "^2.6.0",
     "@types/node": "^8.0.31",
     "jasmine": "^2.8.0",
+    "tslint": "^5.1.0",
     "tslint-sonarts": "^1.7.0"
   }
 }
