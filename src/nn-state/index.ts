@@ -4,15 +4,12 @@ import { SchemaOptions } from './schema';
 export default function (opts: SchemaOptions): Rule {
     const actions: string[] = [];
     if(opts.effects){ 
-        console.log(0, opts.effects, typeof opts.effects);
         opts.effects = JSON.parse(opts.effects);
-        console.log('still ALive 1', opts.effects);
         if(!Array.isArray(opts.effects)) throw new SchematicsException('Expected effects to parse to an array');
         actions.push(...opts.effects);
     }; 
     if(opts.reducers){ 
         opts.reducers = JSON.parse(opts.reducers);
-        console.log('still ALive 2');
         if(!Array.isArray(opts.reducers)) throw new SchematicsException('Expected reducers to parse to an array');
         actions.push(...opts.reducers);
     };

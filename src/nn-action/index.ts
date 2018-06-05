@@ -10,7 +10,6 @@ interface ExtendedSchemaOptions extends SchemaOptions{
 
 export default function (opts: SchemaOptions): Rule {
     opts.actions = JSON.parse(opts.actions);
-    console.log('still ALive 3', opts.actions);
     let path: string = 'src/state'
     const lastIndex:number = opts.name.lastIndexOf('/');
     const parentName:string = opts.name.substr(0, lastIndex)
