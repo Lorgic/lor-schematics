@@ -17,9 +17,10 @@ export default function (opts: SchemaOptions): Rule {
         path = path + '/' + dasherize(parentName);
         opts.name = opts.name.substr(lastIndex + 1);
     }
+    opts.actions.forEach((element: string, index: number) => opts.actions[index] = classify(element));
     const options: ExtendedSchemaOptions = {
-        name: opts.name,
-        parentName,
+        name: classify(opts.name),
+        parentName: classify(parentName),
         actions: opts.actions
     } 
     

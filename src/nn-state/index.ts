@@ -21,5 +21,9 @@ export default function (opts: SchemaOptions): Rule {
             name: opts.name,
             actions: JSON.stringify(actions),
         }),
+        schematic('nn-ngrx-effect', {
+            name: opts.name,
+            effects: JSON.stringify(opts.effects),
+        }),
     ]);
 }
