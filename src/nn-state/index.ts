@@ -17,6 +17,10 @@ export default function (opts: SchemaOptions): Rule {
    
     
     return chain([
+        /* Todo Create empty index.ts file
+        (tree: Tree, _context: SchematicContext) => {
+        },
+        */
         schematic('nn-ngrx-action', {
             name: opts.name,
             actions: JSON.stringify(actions),
@@ -25,5 +29,15 @@ export default function (opts: SchemaOptions): Rule {
             name: opts.name,
             effects: JSON.stringify(opts.effects),
         }),
+        /* TODO: 
+        schematic('nn-ngrx-reducer', {
+            name: opts.name,
+            reducers: JSON.stringify(reducers),
+        }),
+        schematic('nn-ngrx-selector', {
+            name: opts.name
+        }),
+        
+        */
     ]);
 }

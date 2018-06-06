@@ -57,6 +57,10 @@ export default function (opts: SchemaOptions): Rule {
 
             return tree;
         },
+        /* 
+            TODO 1: Add to ./index.ts and state/index.ts
+            TODO 2: Add spec file
+        */
     ]);
 }
 
