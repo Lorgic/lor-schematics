@@ -1,5 +1,6 @@
 import * as ts from 'typescript';
 import { Tree } from '@angular-devkit/schematics/src/tree/interface';
+import { classify } from '@angular-devkit/core/src/utils/strings';
 
 export function findNode(node: ts.Node, kind: ts.SyntaxKind, text: string): ts.Node | null {
     if (node.kind === kind 
@@ -35,6 +36,38 @@ export function getSourceFile(filePath: string, tree: Tree): ts.SourceFile | nul
     if(content) return ts.createSourceFile('demo.ts', content, ts.ScriptTarget.Latest, true)
     else return null;
 
+}
+export interface IDecomposedName{
+    source: string;
+    name: string;
+    parentName: string;
+    ancestors: string;
+}
+export function decomposeName(name: string): IDecomposedName{
+    let result: IDecomposedName = {
+        source: classify(name),
+        name: '',
+        parentName: '',
+        ancestors: ''
+
+    };
+    const splits: string[] = name.split('/');
+    if(splits.length > 2) {
+        let ancestors = '';
+        splits.forEach((value: string, index: number) => {
+            if(index = 0){
+                ancestors += value
+            }else if(index < splits.length - 3){
+                ancestors += '/' + value
+            }
+        })
+        result.ancestors = classify(ancestors);
+    }
+    if(splits.length = 2 || splits.length > 2){
+        result.parentName = classify(splits[splits.length -2]);
+    }
+    result.name = classify(splits[splits.length -1]);
+    return result;
 }
 export interface InsertChange {
     startIndex: number, 

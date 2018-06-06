@@ -25,7 +25,11 @@ export default function (opts: SchemaOptions): Rule {
     } 
     
     return chain([
-       
+        /* 
+            TODO: Add to ./index.ts and state/index.ts 
+            throw new SchematicException('Could not find state/index.ts')
+            if(!./index.ts) create ./index.ts
+        */
         externalSchematic('@ngrx/schematics', 'action', {
             flat: false,
             group: false,
@@ -57,10 +61,6 @@ export default function (opts: SchemaOptions): Rule {
 
             return tree;
         },
-        /* 
-            TODO 1: Add to ./index.ts and state/index.ts
-            TODO 2: Add spec file
-        */
     ]);
 }
 
