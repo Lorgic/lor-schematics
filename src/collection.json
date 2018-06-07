@@ -20,7 +20,11 @@
       "description": "Setup action with NN App project structure. (Uses ngrx/schematics)",
       "factory": "./nn-effect",
       "schema": "./nn-effect/schema.json"
-
+    },
+    "nn-ngrx-reducer": {
+      "description": "Setup action with NN App project structure. (Uses ngrx/schematics)",
+      "factory": "./nn-reducer",
+      "schema": "./nn-reducer/schema.json"
     }
   }
 }

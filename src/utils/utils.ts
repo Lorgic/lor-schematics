@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import { Tree } from '@angular-devkit/schematics/src/tree/interface';
-import { classify } from '@angular-devkit/core/src/utils/strings';
+import { classify, dasherize } from '@angular-devkit/core/src/utils/strings';
 
 export function findNode(node: ts.Node, kind: ts.SyntaxKind, text: string): ts.Node | null {
     if (node.kind === kind 
@@ -41,32 +41,40 @@ export interface IDecomposedName{
     source: string;
     name: string;
     parentName: string;
+    concatName: string,
     ancestors: string;
+    path: string;
 }
 export function decomposeName(name: string): IDecomposedName{
     let result: IDecomposedName = {
         source: classify(name),
         name: '',
         parentName: '',
-        ancestors: ''
-
+        concatName: '',
+        ancestors: '',
+        path: 'src/state'
     };
     const splits: string[] = name.split('/');
     if(splits.length > 2) {
         let ancestors = '';
         splits.forEach((value: string, index: number) => {
-            if(index = 0){
-                ancestors += value
-            }else if(index < splits.length - 3){
-                ancestors += '/' + value
+            if(index < splits.length - 3){
+                ancestors += (index = 0) ? value : '/' + value;
+                result.path += '/' + dasherize(value);
             }
         })
         result.ancestors = classify(ancestors);
+        
     }
     if(splits.length = 2 || splits.length > 2){
         result.parentName = classify(splits[splits.length -2]);
+        result.path += '/' + dasherize(splits[splits.length -2]);
     }
     result.name = classify(splits[splits.length -1]);
+    result.path += '/' + dasherize(splits[splits.length -1]);
+    result.concatName = result.parentName + result.name;
+    
+
     return result;
 }
 export interface InsertChange {
