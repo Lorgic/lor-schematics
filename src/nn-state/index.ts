@@ -40,7 +40,6 @@ export default function (opts: SchemaOptions): Rule {
             })(tree, _context)
         },
         (tree: Tree, _context: SchematicContext) => {
-            console.log('d');
             if(opts.reducers) return schematic('nn-ngrx-reducer', {
                 name: opts.name,
                 reducers: JSON.stringify(opts.reducers),

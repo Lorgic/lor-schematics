@@ -3,9 +3,9 @@ import { Rule, chain, Tree, SchematicContext, externalSchematic, SchematicsExcep
 import { SchemaOptions } from './schema';
 import * as ts from 'typescript';
 import { dasherize, classify, camelize } from '@angular-devkit/core/src/utils/strings';
-import { getSourceFile, InsertChange, findNode, decomposeName, IDecomposedName, showTree, showFileTree } from '../utils/utils';
+import { getSourceFile, InsertChange, findNode, decomposeName, IDecomposedName } from '../utils/utils';
 import { strings } from '@angular-devkit/core';
-// import { findNode, getSourceFile, InsertChange, RemoveChange, showTree } from '../utils/utils';
+
 
 interface ExtendedSchemaOptions extends SchemaOptions{
     parentName: string;
@@ -18,9 +18,7 @@ export default function (opts: SchemaOptions): Rule {
     opts.reducers = JSON.parse(opts.reducers);
     if(!Array.isArray(opts.reducers)) throw new SchematicsException(`reducers in --reducer could not be parsed as JSON to array. Use format ['"item", "item2"']`);
     opts.reducers.forEach((element: string, index: number) => opts.reducers[index] = classify(element));
-    console.log('Reducers', 1);
     const decName = decomposeName(opts.name);
-    console.log('x', decName.path)
     const options: ExtendedSchemaOptions = {
         path: decName.path,
         name: decName.name,
@@ -73,7 +71,6 @@ export default function (opts: SchemaOptions): Rule {
             return tree;
         },
         (tree: Tree, _context: SchematicContext) => {
-            console.log('inserting into', options.path);
             return mergeWith(apply(url('./files'), [
                 filter(path => !!path.match(/reducer\.ts$/)),
                 template({
@@ -87,10 +84,7 @@ export default function (opts: SchemaOptions): Rule {
         },
         (tree: Tree, _context: SchematicContext) => {
             const filePath = `${options.path}/${dasherize(options.name)}.reducer.ts`;
-            
-            console.log('r', tree.exists(filePath), options.path);
-            showFileTree(tree, 'src/state');
-            console.log('*********************')
+
             let sourceFile = getSourceFile(filePath, tree);
             if(!sourceFile) throw new SchematicsException(`Could not find file under filepath: ${filePath}`);
 
@@ -100,7 +94,7 @@ export default function (opts: SchemaOptions): Rule {
                 declarationRecorder.insertLeft(change.startIndex, change.insertText);
             });
             tree.commitUpdate(declarationRecorder);
-            console.log('Reducers', 2);
+
             return tree;
         },
         /* 

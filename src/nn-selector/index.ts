@@ -4,7 +4,6 @@ import * as ts from 'typescript';
 import { dasherize, classify } from '@angular-devkit/core/src/utils/strings';
 import { getSourceFile, InsertChange, findNode, decomposeName } from '../utils/utils';
 import { strings } from '@angular-devkit/core';
-// import { findNode, getSourceFile, InsertChange, RemoveChange, showTree } from '../utils/utils';
 
 interface ExtendedSchemaOptions extends SchemaOptions{
     concatName: string;
