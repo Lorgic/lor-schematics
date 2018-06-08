@@ -68,7 +68,13 @@ export function decomposeName(name: string): IDecomposedName{
         ancestors: '',
         path: 'src/state'
     };
-    const splits: string[] = name.split('/');
+    let splits: string[] = [];
+    if(name.indexOf('/') > 1){
+        splits = name.split('/');
+    }else{
+        splits.push(name);
+    }
+     
     if(splits.length > 2) {
         let ancestors = '';
         splits.forEach((value: string, index: number) => {
