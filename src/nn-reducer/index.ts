@@ -3,7 +3,7 @@ import { Rule, chain, Tree, SchematicContext, externalSchematic, SchematicsExcep
 import { SchemaOptions } from './schema';
 import * as ts from 'typescript';
 import { dasherize, classify, camelize } from '@angular-devkit/core/src/utils/strings';
-import { getSourceFile, InsertChange, findNode, decomposeName, IDecomposedName, showTree } from '../utils/utils';
+import { getSourceFile, InsertChange, findNode, decomposeName, IDecomposedName, showTree, showFileTree } from '../utils/utils';
 import { strings } from '@angular-devkit/core';
 // import { findNode, getSourceFile, InsertChange, RemoveChange, showTree } from '../utils/utils';
 
@@ -16,16 +16,16 @@ interface ExtendedSchemaOptions extends SchemaOptions{
 export default function (opts: SchemaOptions): Rule {
     if(!opts.reducers) throw new SchematicsException('Define at least one reducer with --reducer //--reducer=[\'"LoadSomething"], "CreateSomething"\']');
     opts.reducers = JSON.parse(opts.reducers);
+    if(!Array.isArray(opts.reducers)) throw new SchematicsException(`reducers in --reducer could not be parsed as JSON to array. Use format ['"item", "item2"']`);
     opts.reducers.forEach((element: string, index: number) => opts.reducers[index] = classify(element));
-    
-    
-    const decname = decomposeName(opts.name);
-    
+    console.log('Reducers', 1);
+    const decName = decomposeName(opts.name);
+    console.log('x', decName.path)
     const options: ExtendedSchemaOptions = {
-        path: decname.path,
-        name: decname.name,
-        parentName: decname.parentName,
-        concatName: decname.concatName,
+        path: decName.path,
+        name: decName.name,
+        parentName: decName.parentName,
+        concatName: decName.concatName,
         reducers: opts.reducers
     } 
     
@@ -55,7 +55,7 @@ export default function (opts: SchemaOptions): Rule {
         (tree: Tree, _context: SchematicContext) => {
             // IF index.ts does not exist, create it with right parameter
             const filePath = options.path ;
-            const sourceFile = getSourceFile(filePath + '/index.ts', tree);
+            const sourceFile = getSourceFile(`${filePath}/index.ts`, tree);
             if(!sourceFile){
                 return mergeWith(apply(url('./files'), [
                     filter(path => !!path.match(/index\.ts$/)),
@@ -67,18 +67,19 @@ export default function (opts: SchemaOptions): Rule {
                 ]))(tree, _context);
             }
             // ELSE update it with right parameter
-            let declarationRecorder = tree.beginUpdate(filePath);
+            let declarationRecorder = tree.beginUpdate(`${filePath}/index.ts`);
             declarationRecorder.insertLeft(0, `export * from './${dasherize(options.name)}.reducer';\n`)
             tree.commitUpdate(declarationRecorder);
             return tree;
         },
         (tree: Tree, _context: SchematicContext) => {
+            console.log('inserting into', options.path);
             return mergeWith(apply(url('./files'), [
                 filter(path => !!path.match(/reducer\.ts$/)),
                 template({
                     ...strings,
                     name: options.name,
-                    parentName: options.parentName
+                    concatName: options.concatName
                   }),
                 move(options.path)
             ]))(tree, _context);
@@ -86,16 +87,20 @@ export default function (opts: SchemaOptions): Rule {
         },
         (tree: Tree, _context: SchematicContext) => {
             const filePath = `${options.path}/${dasherize(options.name)}.reducer.ts`;
+            
+            console.log('r', tree.exists(filePath), options.path);
+            showFileTree(tree, 'src/state');
+            console.log('*********************')
             let sourceFile = getSourceFile(filePath, tree);
             if(!sourceFile) throw new SchematicsException(`Could not find file under filepath: ${filePath}`);
 
-            const insertChanges = buildInjectionChanges(sourceFile, options);
+            const insertChanges = getReducerChanges(sourceFile, options);
             let declarationRecorder = tree.beginUpdate(filePath);
             insertChanges.forEach((change: InsertChange) => {
                 declarationRecorder.insertLeft(change.startIndex, change.insertText);
             });
             tree.commitUpdate(declarationRecorder);
-
+            console.log('Reducers', 2);
             return tree;
         },
         /* 
@@ -108,10 +113,9 @@ function getStateInterfaceChangeIndexTs(sourceFile: ts.Node, options: ExtendedSc
     if(!interfaceNode) throw new SchematicsException('No interface called State was found in index.ts');
     const firstPunctuationNode = findNode(interfaceNode, ts.SyntaxKind.FirstPunctuation, '{');
     if(!firstPunctuationNode) throw new SchematicsException('Could not find opening bracket in interface');
-    //Insert into node
+    
     
     const startIndex = firstPunctuationNode.end;     
-    
     let insertText = `\n  ${camelize(options.concatName)}: from${options.concatName}.${options.concatName}State;`
     return {startIndex, insertText};
 }
@@ -123,7 +127,6 @@ function getImportChangeIndexTs(sourceFile: ts.Node, options: ExtendedSchemaOpti
 }
 
 function getReducerObjectChangesIndexTs(sourceFile: ts.Node, options: ExtendedSchemaOptions): InsertChange{
-    showTree(sourceFile);
     const constReducerNode = findNode(sourceFile, ts.SyntaxKind.VariableDeclarationList, 'const reducer')
     if(!constReducerNode) throw new SchematicsException('expected to find export const reducer');
     const firstPunctuationNode = findNode(constReducerNode, ts.SyntaxKind.FirstPunctuation, '{');
@@ -132,24 +135,20 @@ function getReducerObjectChangesIndexTs(sourceFile: ts.Node, options: ExtendedSc
     const insertText = `\n  ${camelize(options.concatName)}: from${options.concatName}.reducer,`;
     return {startIndex, insertText};
 }
-function buildInjectionChanges(sourceFile: ts.Node, options: ExtendedSchemaOptions): InsertChange[]{
-    const injectionChanges: InsertChange[] = [];
-    injectionChanges.push(...getReducerChanges(sourceFile, options));
-    return injectionChanges;
-}
-
 
 function getReducerChanges(sourceFile: ts.Node, options: ExtendedSchemaOptions): InsertChange[]{
-     //SwitchStatement -> FirstPunctuation insert cases
     const changes: InsertChange[] = [];
+    
     const switchStatementNode = findNode(sourceFile, ts.SyntaxKind.SwitchStatement, 'action.type');
     if(!switchStatementNode) throw new SchematicsException('expected to find a switch statement');
     const firstPunctuationNode= findNode(switchStatementNode, ts.SyntaxKind.FirstPunctuation, '{');
     if(!firstPunctuationNode) throw new SchematicsException('expected to find an opening bracket in switch statement');
+
     const startIndex = firstPunctuationNode.end;    
     options.reducers.forEach((reducer: string) => {
         
-        const insertText = `\n    case from${options.concatName}Actions.${options.concatName}ActionTypes.${reducer}: {` +
+        const insertText = 
+        `\n    case from${options.concatName}Actions.${options.concatName}ActionTypes.${reducer}: {` +
         `\n      // prepare variables for state changes` + 
         `\n      return /*{ ...state, partOfStateToChange: changeInput} } */state;` +
         `\n    }` +

@@ -1,18 +1,18 @@
 import { Action } from '@ngrx/store';
-import * as from<%= classify(parentName) %><%= classify(name) %>Actions from './<%= dasherize(name) %>.actions';
+import * as from<%= concatName %>Actions from './<%= dasherize(name) %>.actions';
 
-export interface <%= classify(parentName) %><%= classify(name) %>State {
+export interface <%= concatName %>State {
 
 }
 
-export const initialState: <%= classify(parentName) %><%= classify(name) %>State = {
+export const initialState: <%= concatName %>State = {
 
 };
 
 export function reducer(
-  state: <%= classify(parentName) %><%= classify(name) %>State = initialState, 
-  action: from<%= classify(parentName) %><%= classify(name) %>Actions.<%= classify(parentName) %><%= classify(name) %>Actions
-): <%= classify(parentName) %><%= classify(name) %>State {
+  state: <%= concatName %>State = initialState,
+  action: from<%= concatName %>Actions.<%= concatName %>Actions
+): <%= concatName %>State {
   switch (action.type) {
 
     default:

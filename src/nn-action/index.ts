@@ -1,43 +1,69 @@
-import { Rule, chain, Tree, SchematicContext, externalSchematic, SchematicsException,  } from '@angular-devkit/schematics';
+import { Rule, chain, Tree, SchematicContext, externalSchematic, SchematicsException, mergeWith, apply, url, filter, template, move } from '@angular-devkit/schematics';
 import { SchemaOptions } from './schema';
 import * as ts from 'typescript';
 import { dasherize, classify } from '@angular-devkit/core/src/utils/strings';
-import { findNode, getSourceFile, InsertChange, RemoveChange } from '../utils/utils';
+import { findNode, getSourceFile, InsertChange, RemoveChange, decomposeName } from '../utils/utils';
+import { strings } from '@angular-devkit/core';
 
 interface ExtendedSchemaOptions extends SchemaOptions{
     parentName: string;
+    concatName: string;
+    path: string;
 }
 
 export default function (opts: SchemaOptions): Rule {
+    if(!opts.actions) throw new SchematicsException(`Can't create any actions: use at least one --reducer or --effect ( --reducer=['"reducerOne", "etc"'] )`)
     opts.actions = JSON.parse(opts.actions);
-    let path: string = 'src/state'
-    const lastIndex:number = opts.name.lastIndexOf('/');
-    const parentName:string = opts.name.substr(0, lastIndex)
-    if(lastIndex > -1){
-        path = path + '/' + dasherize(parentName);
-        opts.name = opts.name.substr(lastIndex + 1);
-    }
+    if(!Array.isArray(opts.actions)) throw new SchematicsException(`actions couldnt be parsed as JSON to array. Use format ['"item", "item2"']`);
     opts.actions.forEach((element: string, index: number) => opts.actions[index] = classify(element));
+
+    const decName = decomposeName(opts.name);
+
     const options: ExtendedSchemaOptions = {
-        name: classify(opts.name),
-        parentName: classify(parentName),
+        name: decName.name,
+        parentName: decName.parentName,
+        concatName: decName.concatName,
+        path: decName.path,
         actions: opts.actions
     } 
     
     return chain([
-        /* 
-            TODO: Add to ./index.ts and state/index.ts 
-            throw new SchematicException('Could not find state/index.ts')
-            if(!./index.ts) create ./index.ts
-        */
-        externalSchematic('@ngrx/schematics', 'action', {
-            flat: false,
-            group: false,
-            name: options.name,
-            path: path
-        }),
         (tree: Tree, _context: SchematicContext) => {
-            const filePath = `${path}/${dasherize(options.name)}/${dasherize(options.name)}.actions.ts`;
+            // IF local index.ts does not exist, create it with right parameter
+            const filePath = options.path ;
+            
+            const sourceFile = getSourceFile(`${filePath}/index.ts`, tree);
+            if(!sourceFile){
+                
+                return mergeWith(apply(url('./files'), [
+                    filter(path => !!path.match(/index\.ts$/)),
+                    template({
+                        ...strings,
+                        name: options.name
+                    }),
+                    move(filePath)
+                ]))(tree, _context);
+            }
+            // ELSE update it with parameter
+            let declarationRecorder = tree.beginUpdate(`${filePath}/index.ts`);
+            declarationRecorder.insertLeft(0, `export * from './${dasherize(options.name)}.actions';\n`)
+            tree.commitUpdate(declarationRecorder);
+            return tree;
+        },
+        (tree: Tree, _context: SchematicContext) => {
+            return mergeWith(apply(url('./files'), [
+                filter(path => !!path.match(/actions\.ts$/)),
+                template({
+                    ...strings,
+                    name: options.name,
+                    concatName: options.concatName
+                  }),
+                move(options.path)
+            ]))(tree, _context);
+        },
+        (tree: Tree, _context: SchematicContext) => {
+            
+            const filePath = `${options.path}/${dasherize(options.name)}.actions.ts`;
             let sourceFile = getSourceFile(filePath, tree);
             if(!sourceFile) throw new SchematicsException(`Could not find file under filepath: ${filePath}`);
 
@@ -48,16 +74,6 @@ export default function (opts: SchemaOptions): Rule {
                 declarationRecorder.insertLeft(change.startIndex, change.insertText);
             });
             tree.commitUpdate(declarationRecorder);
-
-            // REMOVE
-            sourceFile = getSourceFile(filePath, tree);
-            if(!sourceFile) throw new SchematicsException(`Could not find file under filepath: ${filePath}`);
-            const removeChanges = buildActionRemoveChanges(sourceFile, options);
-            declarationRecorder = tree.beginUpdate(filePath);
-            removeChanges.forEach((change: RemoveChange) => {
-                declarationRecorder.remove(change.startIndex, change.length);
-            })
-            tree.commitUpdate(declarationRecorder); 
 
             return tree;
         },
@@ -78,27 +94,18 @@ function getEnumChanges(sourceFile: ts.Node, options: ExtendedSchemaOptions): In
 
     
     const enumDeclarationNode = findNode(sourceFile, ts.SyntaxKind.EnumDeclaration, options.name + 'ActionTypes');
-    if(!enumDeclarationNode){
-        return [];
-    }
-
-    // Change Enum identifier
-    if(options.parentName){
-        const enumIdentifierNode = findNode(enumDeclarationNode, ts.SyntaxKind.Identifier, `${options.name}ActionTypes`)
-        if(enumIdentifierNode) changes.push({startIndex: enumIdentifierNode.getStart(), insertText: options.parentName})
-    }
+    if(!enumDeclarationNode) throw new SchematicsException('could not find enum declaration in Action class ');
     
     //Add Enum parameters
-    const enumParameterListNode = findNode(enumDeclarationNode, ts.SyntaxKind.SyntaxList, '[' + options.name + ']');
-    if(!enumParameterListNode) throw new SchematicsException('expect enum ActionTypes to have a parameter list');
-    const parameterArray = enumParameterListNode.getChildren();
-    const lastParameter = parameterArray[parameterArray.length-1];
+    const enumFirstPunctuationNode = findNode(enumDeclarationNode, ts.SyntaxKind.FirstPunctuation, '{');
+    if(!enumFirstPunctuationNode) throw new SchematicsException('expect enum ActionTypes to have an opening bracket');
+    const startIndex = enumFirstPunctuationNode.end;
     
     const actions: string[] = options.actions;
-    if(actions) actions.forEach(element => {
+    if(actions) actions.forEach(action => {
         const identifier = (options.parentName) ? classify(options.parentName) : classify(options.name);
-        const insertText = `\n  ${element} = '[${identifier}] ${element}',`;
-        changes.push({startIndex: lastParameter.end, insertText});
+        const insertText = `\n  ${action} = '[${identifier}] ${action}',`;
+        changes.push({startIndex, insertText});
     });
 
     return changes;
@@ -108,15 +115,15 @@ function getClassChanges(sourceFile: ts.Node, options: ExtendedSchemaOptions): I
     const changes: InsertChange[] = [];
     
     //Find default Class
-    const classNode = findNode(sourceFile, ts.SyntaxKind.ClassDeclaration, 'export class');
-    if(!classNode) return [];
+    const enumDeclarationNode = findNode(sourceFile, ts.SyntaxKind.EnumDeclaration, 'export enum');
+    if(!enumDeclarationNode) throw new SchematicsException('Did not find end of enum');
 
-    //Insert after default class
-    const startIndex = classNode.end;
+    //Insert after enum
+    const startIndex = enumDeclarationNode.end;
     const actions: string[] = options.actions;
     if(actions) actions.forEach(element => {
         let insertText = `\n\nexport class ${element} implements Action {` + 
-        `\n  readonly type = ${options.parentName}${options.name}ActionTypes.${element};\n}`;
+        `\n  readonly type = ${options.concatName}ActionTypes.${element};\n}`;
         changes.push({startIndex, insertText});
     });
     return changes;
@@ -125,18 +132,13 @@ function getClassChanges(sourceFile: ts.Node, options: ExtendedSchemaOptions): I
 function getTypeChanges(sourceFile: ts.Node, options: ExtendedSchemaOptions): InsertChange[] {
     const changes: InsertChange[] = [];
 
-    const typeNode = findNode(sourceFile, ts.SyntaxKind.TypeReference, 'Load');
-    if(!typeNode) return [];
-
-    // Change identifier if parentName exists
-    if(options.parentName){
-        let typeAliasNode = findNode(sourceFile, ts.SyntaxKind.TypeAliasDeclaration, `${options.name}Actions`)
-        let identifierNode = (typeAliasNode) ? findNode(typeAliasNode,ts.SyntaxKind.Identifier, `${options.name}Actions` ): null;
-        if(identifierNode) changes.push({startIndex: identifierNode.getStart(), insertText: options.parentName})
-    }
-
+    const typeNode = findNode(sourceFile, ts.SyntaxKind.TypeAliasDeclaration, 'export type');
+    if(!typeNode) throw new SchematicsException('Did not find end of enum');;
+    const firstAssignmentNode = findNode(sourceFile, ts.SyntaxKind.FirstAssignment, '=');
+    if(!firstAssignmentNode) throw new SchematicsException('Did not find end of enum');;
+    
     // Insert after Default type
-    let startIndex = typeNode.end;
+    let startIndex = firstAssignmentNode.end;
     const actions: string[] = options.actions;
     if(actions) actions.forEach((element, index:number) => {
         let insertText = (Object.is(actions.length -1, index)) ?
@@ -146,31 +148,4 @@ function getTypeChanges(sourceFile: ts.Node, options: ExtendedSchemaOptions): In
     });
     
     return changes;
-}
-function buildActionRemoveChanges(sourceFile: ts.Node, options: ExtendedSchemaOptions): RemoveChange[]{
-    const removeChanges: RemoveChange[] = [];
-
-    removeChanges.push(removeInitialLoadType(sourceFile, options));
-    removeChanges.push(removeInitialLoadClass(sourceFile, options));
-    removeChanges.push(removeInitialLoadFromEnum(sourceFile, options));
-
-    return removeChanges;
-}
-function removeInitialLoadFromEnum(sourceFile: ts.Node, options: ExtendedSchemaOptions): RemoveChange{
-    const actionTypesNode = findNode(sourceFile, ts.SyntaxKind.EnumDeclaration, options.name + 'ActionTypes');
-    if(!actionTypesNode) throw new SchematicsException('expect enum to have an EnumDeclaration ...ActionTypes');
-    const parameterListNode = findNode(actionTypesNode, ts.SyntaxKind.SyntaxList, '[' + options.name + ']');
-    if(!parameterListNode) throw new SchematicsException('expect enum ActionTypes to have a parameter list');
-    const parameterNodes = parameterListNode.getChildren();
-    return {startIndex: parameterNodes[0].getStart(), length: parameterNodes[0].getText().length + 3};
-}
-function removeInitialLoadClass(sourceFile: ts.Node, options: ExtendedSchemaOptions): RemoveChange {
-    const classNode = findNode(sourceFile, ts.SyntaxKind.ClassDeclaration, `export class ${options.name}` );
-    if(!classNode) throw new SchematicsException('expected there was an initial load class');
-    return {startIndex: classNode.getStart(), length: classNode.getText().length + 2};
-}
-function removeInitialLoadType(sourceFile: ts.Node, options: ExtendedSchemaOptions): RemoveChange {
-    const typeNode = findNode(sourceFile, ts.SyntaxKind.TypeReference, `Load${options.name}s`);
-    if(!typeNode) throw new SchematicsException('expected there was an initial load in type'); ;
-    return {startIndex: typeNode.getStart(), length: typeNode.getText().length + 3};
 }

@@ -17,9 +17,7 @@ export default function (opts: SchemaOptions): Rule {
         if(!Array.isArray(opts.reducers)) throw new SchematicsException('Expected reducers to parse to an array');
         actions.push(...opts.reducers);
     };
-    
-   
-    
+
     return chain([
         (tree: Tree, _context: SchematicContext) => {
             const filePath = `src/state`;
@@ -31,21 +29,26 @@ export default function (opts: SchemaOptions): Rule {
                 ]))(tree, _context);
             }
         },
-        
-        // schematic('nn-ngrx-action', {
-        //     name: opts.name,
-        //     actions: JSON.stringify(actions),
-        // }),
-        // schematic('nn-ngrx-effect', {
-        //     name: opts.name,
-        //     effects: JSON.stringify(opts.effects),
-        // }),
-        schematic('nn-ngrx-reducer', {
+        schematic('nn-ngrx-action', {
             name: opts.name,
-            reducers: JSON.stringify(opts.reducers),
+            actions: JSON.stringify(actions),
         }),
-        // schematic('nn-ngrx-selector', {
-        //     name: opts.name
-        // }),
+         (tree: Tree, _context: SchematicContext) => {
+            if(opts.effects) return schematic('nn-ngrx-effect', {
+                name: opts.name,
+                effects: JSON.stringify(opts.effects),
+            })(tree, _context)
+        },
+        (tree: Tree, _context: SchematicContext) => {
+            console.log('d');
+            if(opts.reducers) return schematic('nn-ngrx-reducer', {
+                name: opts.name,
+                reducers: JSON.stringify(opts.reducers),
+            })(tree, _context)
+        },
+       
+        schematic('nn-ngrx-selector', {
+            name: opts.name
+        }),
     ]);
 }

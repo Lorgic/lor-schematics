@@ -19,6 +19,20 @@ export function findNode(node: ts.Node, kind: ts.SyntaxKind, text: string): ts.N
     });
     return childNode;
 }
+export function showFileTree(tree: Tree, path: string, indent: string = '  '){
+    const dir = tree.getDir(path);
+    
+    const subfiles = dir.subfiles;
+    subfiles.forEach((subFile) => console.log(`${indent}-${subFile}`));
+
+    const subdirs = dir.subdirs;
+    
+    subdirs.forEach((subdir) => {
+        console.log(`${indent}/${subdir}`);
+        showFileTree(tree, `${path}/${subdir}`, indent + '  ');
+    })
+}
+
 export function showTree(node: ts.Node, indent: string = '    '): void {
     console.log(indent + ts.SyntaxKind[node.kind]);
     if (node.getChildCount() === 0) {

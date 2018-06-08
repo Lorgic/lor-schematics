@@ -11,20 +11,25 @@
 
     },
     "nn-ngrx-action": {
-      "description": "Setup action with NN App project structure. (Uses ngrx/schematics)",
+      "description": "Setup actions",
       "factory": "./nn-action",
       "schema": "./nn-action/schema.json"
 
     },
     "nn-ngrx-effect": {
-      "description": "Setup action with NN App project structure. (Uses ngrx/schematics)",
+      "description": "Setup effects",
       "factory": "./nn-effect",
       "schema": "./nn-effect/schema.json"
     },
     "nn-ngrx-reducer": {
-      "description": "Setup action with NN App project structure. (Uses ngrx/schematics)",
+      "description": "Setup reducer",
       "factory": "./nn-reducer",
       "schema": "./nn-reducer/schema.json"
+    },
+    "nn-ngrx-selector": {
+      "description": "Setup selectors",
+      "factory": "./nn-selector",
+      "schema": "./nn-selector/schema.json"
     }
   }
 }
