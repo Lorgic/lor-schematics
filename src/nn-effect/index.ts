@@ -129,7 +129,7 @@ function getEffectChanges(sourceFile: ts.Node, options: ExtendedSchemaOptions): 
 
 function getEffectSpecificText(effect: string, concatName: string): string{
     
-    if(effect.includes('Completed' || 'Fail')){
+    if(effect.includes('Completed') || effect.includes('Fail')){
         const untilIndex = effect.includes('Completed') ? effect.indexOf('Completed'): effect.indexOf('Fail') ;
         const lengthOfKeyWord = 4; //'Load' or 'Save' 
         let baseEffectName: string = '';

@@ -69,12 +69,12 @@ export function decomposeName(name: string): IDecomposedName{
         path: 'src/state'
     };
     let splits: string[] = [];
-    if(name.indexOf('/') > 1){
+    if(name.indexOf('/') > -1){
         splits = name.split('/');
     }else{
         splits.push(name);
     }
-     
+
     if(splits.length > 2) {
         let ancestors = '';
         splits.forEach((value: string, index: number) => {
@@ -86,15 +86,15 @@ export function decomposeName(name: string): IDecomposedName{
         result.ancestors = classify(ancestors);
         
     }
-    if(splits.length = 2 || splits.length > 2){
+    if(splits.length >= 2){
         result.parentName = classify(splits[splits.length -2]);
         result.path += '/' + dasherize(splits[splits.length -2]);
     }
+
     result.name = classify(splits[splits.length -1]);
     result.path += '/' + dasherize(splits[splits.length -1]);
     result.concatName = result.parentName + result.name;
     
-
     return result;
 }
 export interface InsertChange {

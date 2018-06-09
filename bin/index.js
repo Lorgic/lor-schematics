@@ -19,7 +19,7 @@ argv.forEach((arg) => {
 if(!name || !reducers && !effects){
     return console.log('--name and --reducers and/or --effects are required parameters');
 }
-const actions = [];
+let actions = [];
 if(effects){ 
     effects = JSON.parse(effects);
     if(!Array.isArray(effects)) throw new SchematicsException('Expected effects to parse to an array');
@@ -30,14 +30,25 @@ if(reducers){
     if(!Array.isArray(reducers)) throw new SchematicsException('Expected reducers to parse to an array');
     actions.push(...reducers);
 };
-console.log(name, reducers, effects, actions);
-execSync(`ng g @nn/schematics:nn-ngrx-state --name=${name}`);
-execSync(`ng g @nn/schematics:nn-ngrx-action --name=${name} --actions=${actions}`);
-if(effects){
-    execSync(`ng g @nn/schematics:nn-ngrx-effect --name=${name} --effects=${effects}`);
-}
-if(reducers){
-    execSync(`ng g @nn/schematics:nn-ngrx-reducer --name=${name} --reducers=${reducers}`);
-}
-execSync(`ng g @nn/schematics:nn-ngrx-selector --name=${name}`);
+actions = JSON.stringify(actions).replace("[", "['").replace("]", "']");
+console.log('Executing nn-ngrx-state schematic');
+execSync(`ng g @nn/schematics:nn-ngrx-state --name=${name}`,{stdio:[0,1,2]});
 
+console.log('Executing nn-ngrx-action schematic');
+execSync(`ng g @nn/schematics:nn-ngrx-action --name=${name} --actions=${actions}`, {stdio:[0,1,2]});
+
+if(effects){
+    effects = JSON.stringify(effects).replace("[", "['").replace("]", "']");
+    console.log('Executing nn-ngrx-effect schematic');
+    execSync(`ng g @nn/schematics:nn-ngrx-effect --name=${name} --effects=${effects}`, {stdio:[0,1,2]});
+}
+
+if(reducers){
+    reducers = JSON.stringify(reducers).replace("[", "['").replace("]", "']");
+    console.log('Executing nn-ngrx-reducer schematic');
+    execSync(`ng g @nn/schematics:nn-ngrx-reducer --name=${name} --reducers=${reducers}`, {stdio:[0,1,2]});
+}
+
+console.log('Executing nn-ngrx-selector schematic');
+execSync(`ng g @nn/schematics:nn-ngrx-selector --name=${name}`, {stdio:[0,1,2]});
+console.log('End of schematic');
