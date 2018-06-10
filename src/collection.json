@@ -4,32 +4,32 @@
 
  
   "schematics": {
-    "nn-ngrx-state": {
-      "description": "Setup state with NN App project structure. (Uses ngrx/schematics)",
-      "factory": "./nn-state",
-      "schema": "./nn-state/schema.json"
+    "lor-ngrx-state": {
+      "description": "Setup state with Lorgic App project structure. (Uses ngrx/schematics)",
+      "factory": "./lor-state",
+      "schema": "./lor-state/schema.json"
 
     },
-    "nn-ngrx-action": {
+    "lor-ngrx-action": {
       "description": "Setup actions",
-      "factory": "./nn-action",
-      "schema": "./nn-action/schema.json"
+      "factory": "./lor-action",
+      "schema": "./lor-action/schema.json"
 
     },
-    "nn-ngrx-effect": {
+    "lor-ngrx-effect": {
       "description": "Setup effects",
-      "factory": "./nn-effect",
-      "schema": "./nn-effect/schema.json"
+      "factory": "./lor-effect",
+      "schema": "./lor-effect/schema.json"
     },
-    "nn-ngrx-reducer": {
+    "lor-ngrx-reducer": {
       "description": "Setup reducer",
-      "factory": "./nn-reducer",
-      "schema": "./nn-reducer/schema.json"
+      "factory": "./lor-reducer",
+      "schema": "./lor-reducer/schema.json"
     },
-    "nn-ngrx-selector": {
+    "lor-ngrx-selector": {
       "description": "Setup selectors",
-      "factory": "./nn-selector",
-      "schema": "./nn-selector/schema.json"
+      "factory": "./lor-selector",
+      "schema": "./lor-selector/schema.json"
     }
   }
 }

@@ -1,13 +1,13 @@
 {
-  "name": "@nn/schematics",
+  "name": "@lor/schematics",
   "version": "0.0.1",
-  "description": "Schematics for NN Angular Apps",
+  "description": "Schematics for Lorgic Angular Apps",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && jasmine **/*_spec.js"
   },
   "bin": {
-    "nn-schematics": "./bin/index.js"
+    "lor-schematics": "./bin/index.js"
   },
   "keywords": [
     "schematics"

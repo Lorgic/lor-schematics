@@ -1,9 +1,8 @@
-import { reducers } from './../nn-state/files/index';
-import { Rule, chain, Tree, SchematicContext, externalSchematic, SchematicsException, mergeWith, apply, url, template, move, filter,  } from '@angular-devkit/schematics';
+import { Rule, chain, Tree, SchematicContext, SchematicsException, mergeWith, apply, url, template, move, filter,  } from '@angular-devkit/schematics';
 import { SchemaOptions } from './schema';
 import * as ts from 'typescript';
 import { dasherize, classify, camelize } from '@angular-devkit/core/src/utils/strings';
-import { getSourceFile, InsertChange, findNode, decomposeName, IDecomposedName } from '../utils/utils';
+import { getSourceFile, InsertChange, findNode, decomposeName } from '../utils/utils';
 import { strings } from '@angular-devkit/core';
 
 

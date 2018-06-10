@@ -31,24 +31,24 @@ if(reducers){
     actions.push(...reducers);
 };
 actions = JSON.stringify(actions).replace("[", "['").replace("]", "']");
-console.log('Executing nn-ngrx-state schematic');
-execSync(`ng g @nn/schematics:nn-ngrx-state --name=${name}`,{stdio:[0,1,2]});
+console.log('Executing lor-ngrx-state schematic');
+execSync(`ng g @lor/schematics:lor-ngrx-state --name=${name}`,{stdio:[0,1,2]});
 
-console.log('Executing nn-ngrx-action schematic');
-execSync(`ng g @nn/schematics:nn-ngrx-action --name=${name} --actions=${actions}`, {stdio:[0,1,2]});
+console.log('Executing lor-ngrx-action schematic');
+execSync(`ng g @lor/schematics:lor-ngrx-action --name=${name} --actions=${actions}`, {stdio:[0,1,2]});
 
 if(effects){
     effects = JSON.stringify(effects).replace("[", "['").replace("]", "']");
-    console.log('Executing nn-ngrx-effect schematic');
-    execSync(`ng g @nn/schematics:nn-ngrx-effect --name=${name} --effects=${effects}`, {stdio:[0,1,2]});
+    console.log('Executing lor-ngrx-effect schematic');
+    execSync(`ng g @lor/schematics:lor-ngrx-effect --name=${name} --effects=${effects}`, {stdio:[0,1,2]});
 }
 
 if(reducers){
     reducers = JSON.stringify(reducers).replace("[", "['").replace("]", "']");
-    console.log('Executing nn-ngrx-reducer schematic');
-    execSync(`ng g @nn/schematics:nn-ngrx-reducer --name=${name} --reducers=${reducers}`, {stdio:[0,1,2]});
+    console.log('Executing lor-ngrx-reducer schematic');
+    execSync(`ng g @lor/schematics:lor-ngrx-reducer --name=${name} --reducers=${reducers}`, {stdio:[0,1,2]});
 }
 
-console.log('Executing nn-ngrx-selector schematic');
-execSync(`ng g @nn/schematics:nn-ngrx-selector --name=${name}`, {stdio:[0,1,2]});
+console.log('Executing lor-ngrx-selector schematic');
+execSync(`ng g @lor/schematics:lor-ngrx-selector --name=${name}`, {stdio:[0,1,2]});
 console.log('End of schematic');

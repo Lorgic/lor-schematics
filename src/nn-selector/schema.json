@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/schema",
-    "id": "NNSchematicsSelector",
-    "title": "NgRx NN State Options Schema",
+    "id": "LorgicSchematicsSelector",
+    "title": "NgRx Lorgic State Options Schema",
     "type": "object",
     "properties": {
       "name": {

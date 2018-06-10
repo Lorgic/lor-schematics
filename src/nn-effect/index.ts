@@ -1,4 +1,4 @@
-import { Rule, chain, Tree, SchematicContext, externalSchematic, SchematicsException, mergeWith, apply, url, filter, template, move,  } from '@angular-devkit/schematics';
+import { Rule, chain, Tree, SchematicContext, SchematicsException, mergeWith, apply, url, filter, template, move,  } from '@angular-devkit/schematics';
 import { SchemaOptions } from './schema';
 import * as ts from 'typescript';
 import { dasherize, classify } from '@angular-devkit/core/src/utils/strings';

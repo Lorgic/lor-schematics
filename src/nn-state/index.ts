@@ -29,24 +29,24 @@ export default function (opts: SchemaOptions): Rule {
                 ]))(tree, _context);
             }
         },
-        // schematic('nn-ngrx-action', {
+        // schematic('lor-ngrx-action', {
         //     name: opts.name,
         //     actions: JSON.stringify(actions),
         // }),
         //  (tree: Tree, _context: SchematicContext) => {
-        //     if(opts.effects) return schematic('nn-ngrx-effect', {
+        //     if(opts.effects) return schematic('lor-ngrx-effect', {
         //         name: opts.name,
         //         effects: JSON.stringify(opts.effects),
         //     })(tree, _context)
         // },
         // (tree: Tree, _context: SchematicContext) => {
-        //     if(opts.reducers) return schematic('nn-ngrx-reducer', {
+        //     if(opts.reducers) return schematic('lor-ngrx-reducer', {
         //         name: opts.name,
         //         reducers: JSON.stringify(opts.reducers),
         //     })(tree, _context)
         // },
        
-        // schematic('nn-ngrx-selector', {
+        // schematic('lor-ngrx-selector', {
         //     name: opts.name
         // }),
     ]);
